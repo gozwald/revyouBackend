@@ -1,43 +1,50 @@
-const automl = require("@google-cloud/automl");
-const fs = require("fs");
-
-// Create client for prediction service.
-const client = new automl.PredictionServiceClient();
-
 /**
- * TODO(developer): Uncomment the following line before running the sample.
+ * TODO(developer): Uncomment these variables before running the sample.
  */
-// const projectId = `The GCLOUD_PROJECT string, e.g. "my-gcloud-project"`;
-// const computeRegion = `region-name, e.g. "us-central1"`;
-// const modelId = `id of the model, e.g. “ICN723541179344731436”`;
-// const filePath = `local text file path of content to be classified, e.g. "./resources/flower.png"`;
-// const scoreThreshold = `value between 0.0 and 1.0, e.g. "0.5"`;
+const projectId = 'concise-smoke-280412';
+const location = 'us-central1';
+const modelId = 'TEN2837621807987556352';
+const content = 'This is a fantastic usb Cable and it works great!'
+const keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS
 
-// Get the full path of the model.
-const modelFullId = client.modelPath(projectId, computeRegion, modelId);
+// Imports the Google Cloud AutoML library
+const {PredictionServiceClient} = require('@google-cloud/automl').v1;
 
-// Read the file content for prediction.
-const content = fs.readFileSync(filePath, "base64");
+// const myKeyData = require(process.env.GOOGLE_APPLICATION_CREDENTIALS)
 
-const params = {};
+// console.log(myKeyData.client_id)
 
-if (scoreThreshold) {
-  params.score_threshold = scoreThreshold;
+console.log(process.env.GOOGLE_APPLICATION_CREDENTIALS)
+
+// Instantiates a client
+const client = new PredictionServiceClient({
+  keyFilename
+});
+
+async function predict() {
+  // Construct request
+  const request = {
+    name: client.modelPath(projectId, location, modelId),
+    payload: {
+      textSnippet: {
+        content: content,
+        mimeType: 'text/plain', // Types: 'test/plain', 'text/html'
+      },
+    },
+  };
+
+  const [response] = await client.predict(request).catch(err => console.log(err));
+
+  for (const annotationPayload of response.payload) {
+    console.log(
+      `Text Extract Entity Types: ${annotationPayload.displayName}`
+    );
+    console.log(`Text Score: ${annotationPayload.textExtraction.score}`);
+    const textSegment = annotationPayload.textExtraction.textSegment;
+    console.log(`Text Extract Entity Content: ${textSegment.content}`);
+    console.log(`Text Start Offset: ${textSegment.startOffset}`);
+    console.log(`Text End Offset: ${textSegment.endOffset}`);
+  }
 }
 
-// Set the payload by giving the content and type of the file.
-const payload = {};
-payload.image = { imageBytes: content };
-
-// params is additional domain-specific parameters.
-// currently there is no additional parameters supported.
-const [response] = await client.predict({
-  name: modelFullId,
-  payload: payload,
-  params: params,
-});
-console.log("Prediction results:");
-response.payload.forEach((result) => {
-  console.log(`Predicted class name: ${result.displayName}`);
-  console.log(`Predicted class score: ${result.classification.score}`);
-});
+module.exports.predict = predict;

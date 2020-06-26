@@ -55,10 +55,10 @@ router.post("/getdata", function (req, res, next) {
       productInfo.map((item, index, array) => {
         predict(item).then((sentiment) => {
           result.reviews.push({ review: item, sentiment });
+          sentiment.forEach((review) => {
+            result.count[review.label]++;
+          });
           if (result.reviews.length === productInfo.length) {
-            result.reviews.forEach((review) => {
-              if (review) result.count[review.label]++;
-            });
             return res.json(result);
           }
           if (array.length === index) {

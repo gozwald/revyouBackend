@@ -43,9 +43,25 @@ router.post("/getdata", function (req, res, next) {
 
         return data;
       });
+
+      // const result = {
+      //   amazonUrl: url,
+      //   reviews: [
+      //     {
+      //       review: "item review",
+      //       sentiment_analysis: [],
+      //     },
+      //   ],
+      //   count: {
+      //     faulty_device: 0,
+      //     worked_as_intended: 0,
+      //     good_feature: 0,
+      //   },
+      // };
+
       const result = {
         amazonUrl: url,
-        reviews: [],
+        reviews: [], // [{review: text, sentiment: [sentiment1, sentiment2]}]
         count: {
           faulty_device: 0,
           worked_as_intended: 0,
@@ -53,12 +69,15 @@ router.post("/getdata", function (req, res, next) {
         },
       };
       productInfo.map((item, index, array) => {
-        predict(item).then((sentiment) => {
-          result.reviews.push({ review: item, sentiment });
+        predict(item).then(([sentiment]) => {
+          console.log(item, sentiment);
+          result.reviews.push(sentiment);
           if (result.reviews.length === productInfo.length) {
             result.reviews.forEach((review) => {
               if (review) result.count[review.label]++;
             });
+            const filtered = result.reviews.filter((e) => e != null);
+            result.reviews = filtered;
             return res.json(result);
           }
           if (array.length === index) {

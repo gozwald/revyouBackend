@@ -25,9 +25,10 @@ async function predict(content) {
     .predict(request)
     .catch((err) => console.log(err));
 
+  console.log(response);
+
   let output = response.payload.map((e) => {
     return {
-      // review: content,
       label: e.displayName,
       snippet: e.textExtraction.textSegment.content,
     };

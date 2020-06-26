@@ -15,20 +15,22 @@ router.post("/test", function (req, res, next) {
       good_feature: 0,
     },
   };
-  reviews.map((item, index, array) => {
-    predict(item).then(([item]) => {
-      result.reviews.push(item);
-      if (result.reviews.length === reviews.length) {
-        result.reviews.forEach((review) => {
-          if (review) result.count[review.label]++;
-        });
-        return res.json(result);
-      }
-      if (array.length === index) {
-        throw new Error("Blergh");
-      }
+  const promises = reviews.map((item, index, array) => {
+    predict(item).then((sentiment) => {
+      console.log(sentiment);
+      result.reviews.push(...sentiment);
+      // if (result.reviews.length === reviews.length) {
+      //   result.reviews.forEach((review) => {
+      //     if (review) result.count[review.label]++;
+      //   });
+      //   return res.json(result);
+      // }
+      // if (array.length === index) {
+      //   throw new Error("Blergh");
+      // }
     });
   });
+  Promise.all(promises).then((data) => res.json(result));
 });
 
 module.exports = router;

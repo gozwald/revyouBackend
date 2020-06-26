@@ -1,9 +1,23 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+const { predict } = require("../autoMLClient/client");
+
+router.post("/test", function (req, res, next) {
+  const result = [];
+  const { reviews } = req.body;
+
+  reviews.map((item, index, array) => {
+    predict(item).then((item) => {
+      result.push(item);
+      if (result.length === reviews.length) {
+        return res.send(result);
+      }
+      if (array.length === index) {
+        throw new Error("Blergh");
+      }
+    });
+  });
 });
 
 module.exports = router;

@@ -3,10 +3,9 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-const { predict } = require('./autoMLClient/client')
 
-var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var getData = require("./routes/getdata");
 
 var app = express();
 
@@ -16,9 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
-
-predict()
+app.use("/", usersRouter);
+app.use("/", getData);
 
 module.exports = app;

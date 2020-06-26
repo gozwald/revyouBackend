@@ -4,14 +4,25 @@ var router = express.Router();
 const { predict } = require("../autoMLClient/client");
 
 router.post("/test", function (req, res, next) {
-  const result = [];
   const { reviews } = req.body;
 
+  const result = {
+    amazonUrl: "www.blah.com",
+    reviews: [],
+    count: {
+      faulty_device: 0,
+      worked_as_intended: 0,
+      good_feature: 0,
+    },
+  };
   reviews.map((item, index, array) => {
-    predict(item).then((item) => {
-      result.push(item);
-      if (result.length === reviews.length) {
-        return res.send(result);
+    predict(item).then(([item]) => {
+      result.reviews.push(item);
+      if (result.reviews.length === reviews.length) {
+        result.reviews.forEach((review) => {
+          if (review) result.count[review.label]++;
+        });
+        return res.json(result);
       }
       if (array.length === index) {
         throw new Error("Blergh");

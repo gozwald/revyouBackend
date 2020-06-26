@@ -4,7 +4,6 @@ const puppeteer = require("puppeteer");
 const { predict } = require("../autoMLClient/client");
 
 router.post("/getdata", function (req, res, next) {
-  const result = [];
   const { url } = req.body;
 
   puppeteer
@@ -44,12 +43,23 @@ router.post("/getdata", function (req, res, next) {
 
         return data;
       });
-
+      const result = {
+        amazonUrl: url,
+        reviews: [],
+        count: {
+          faulty_device: 0,
+          worked_as_intended: 0,
+          good_feature: 0,
+        },
+      };
       productInfo.map((item, index, array) => {
-        predict(item).then((item) => {
-          result.push(item);
-          if (result.length === productInfo.length) {
-            return res.send(result);
+        predict(item).then(([item]) => {
+          result.reviews.push(item);
+          if (result.reviews.length === productInfo.length) {
+            result.reviews.forEach((review) => {
+              if (review) result.count[review.label]++;
+            });
+            return res.json(result);
           }
           if (array.length === index) {
             throw new Error("Blergh");

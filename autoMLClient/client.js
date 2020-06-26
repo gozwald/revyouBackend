@@ -16,6 +16,7 @@ async function predict(content) {
     payload: {
       textSnippet: {
         content: content,
+        mimeType: "text/plain",
       },
     },
   };
@@ -24,14 +25,15 @@ async function predict(content) {
     .predict(request)
     .catch((err) => console.log(err));
 
-  for (const annotationPayload of response.payload) {
-    const textSegment = annotationPayload.textExtraction.textSegment;
-    const obj = {
-      label: annotationPayload.displayName,
-      origin: textSegment.content,
+  let output = response.payload.map((e) => {
+    return {
+      // review: content,
+      label: e.displayName,
+      snippet: e.textExtraction.textSegment.content,
     };
-    return obj;
-  }
+  });
+
+  return output;
 }
 
 module.exports.predict = predict;

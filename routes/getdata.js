@@ -3,6 +3,8 @@ var router = express.Router();
 const puppeteer = require("puppeteer");
 const { predict } = require("../autoMLClient/client");
 
+// https://www.amazon.com/{longname}/product-reviews/{asin}/ref=cm_cr_arp_d_paging_btm_next_{pagenum}?ie=UTF8&reviewerType=all_reviews&pageNumber={pagenum}
+
 router.post("/getdata", function (req, res, next) {
   const { url } = req.body;
 
@@ -17,6 +19,7 @@ router.post("/getdata", function (req, res, next) {
       ],
     })
     .then(async (browser) => {
+      let data = [];
       const page = await browser.newPage();
       await page.goto(url);
       await page.waitForSelector("body");
@@ -59,7 +62,7 @@ router.post("/getdata", function (req, res, next) {
             result.count[review.label]++;
           });
           if (result.reviews.length === productInfo.length) {
-            return res.json(result);
+            return res.json([result]);
           }
           if (array.length === index) {
             throw new Error("Blergh");

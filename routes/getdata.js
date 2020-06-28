@@ -12,6 +12,14 @@ router.post("/getdata", function (req, res, next) {
 
   function urlMapper(url) {
     const finalResult = [];
+    const finalTally = {
+      count: {
+        faulty_device: 0,
+        worked_as_intended: 0,
+        good_feature: 0,
+      },
+    };
+
     url.forEach((e, index) => {
       puppeteer
         .launch({
@@ -64,12 +72,13 @@ router.post("/getdata", function (req, res, next) {
               result.reviews.push({ review: item, sentiment });
               sentiment.forEach((review) => {
                 result.count[review.label]++;
+                finalTally.count[review.label]++;
               });
               if (result.reviews.length === productInfo.length) {
                 finalResult.push(result);
               }
               if (url.length === finalResult.length) {
-                res.json(finalResult);
+                res.json({ finalResult, finalTally });
               }
 
               if (array.length === index) {

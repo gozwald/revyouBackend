@@ -25,7 +25,7 @@ async function predict(content) {
     .predict(request)
     .catch((err) => console.log(err));
 
-  console.log(response);
+  // console.log(response);
 
   let output = response.payload.map((e) => {
     return {

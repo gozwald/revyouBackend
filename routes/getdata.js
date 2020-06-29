@@ -53,7 +53,7 @@ router.post("/getdata", function (req, res, next) {
           );
         }
         console.log(urlCollection);
-        // urlMapper(urlCollection);
+        urlMapper(urlCollection);
       })
       .catch(function (error) {
         console.error(error);

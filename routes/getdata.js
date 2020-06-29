@@ -3,22 +3,24 @@ var router = express.Router();
 const puppeteer = require("puppeteer");
 const { predict } = require("../autoMLClient/client");
 
-// https://www.amazon.com/{longname}/product-reviews/{asin}/ref=cm_cr_getr_d_paging_btm_prev_{pagenum}?pageNumber={pagenum}
-//www.amazon.com/AINOPE-Rupture-Double-Compatible-Enclosures/product-review/B07YSNFNKD/ref=cm_cr_getr_d_paging_btm_prev_1?pageNumber=1
-
-https: router.post("/getdata", function (req, res, next) {
+router.post("/getdata", function (req, res, next) {
   const { url } = req.body;
 
   reviewQuantifier(url);
   function reviewQuantifier(url) {
+    const decodedUrl = decodeURIComponent(url);
     const upperCaseRegex = /[A-Z1-9]{5,10}/;
     const hyphenatedWords = /((?:\w+-)+\w+)/;
-    const splitUrl = url.split("%2F");
-    if (!splitUrl[1] || !splitUrl[3])
+    const splitUrl = decodedUrl.split("/");
+    const asin = splitUrl.splice(-2, 1);
+    const slug = splitUrl.splice(-3, 1);
+
+    if (!asin[0] || !slug[0])
       throw new Error("Missing information from the URL to parse it correctly");
-    if (!hyphenatedWords.test(splitUrl[1]) && !upperCaseRegex.test(splitUrl[3]))
+    if (!hyphenatedWords.test(slug[0]) && !upperCaseRegex.test(asin[0]))
       throw new Error("The URL is malformed");
-    const newUrl = `https://www.amazon.com/${splitUrl[1]}/product-review/${splitUrl[3]}/ref=cm_cr_getr_d_paging_btm_prev_1?pageNumber=1`;
+    const newUrl = `https://www.amazon.com/${slug[0]}/product-review/${asin[0]}/ref=cm_cr_getr_d_paging_btm_prev_1?pageNumber=1`;
+
     puppeteer
       .launch({
         headless: true,
@@ -43,14 +45,15 @@ https: router.post("/getdata", function (req, res, next) {
         });
         await browser.close();
         let reviews = reviewPages.split(" ");
-        const reviewCount = parseInt(reviews[3]);
+        const reviewCount = parseFloat(reviews[3].replace(/,/g, ""));
         const urlCollection = [];
-        for (let i = 1; i < reviewCount / 10; i++) {
+        for (let i = 1; i < reviewCount / 10 && i < 11; i++) {
           urlCollection.push(
-            `https://www.amazon.com/${splitUrl[1]}/product-review/${splitUrl[3]}/ref=cm_cr_getr_d_paging_btm_prev_${i}?pageNumber=${i}`
+            `https://www.amazon.com/${slug[0]}/product-review/${asin[0]}/ref=cm_cr_getr_d_paging_btm_prev_${i}?pageNumber=${i}`
           );
         }
-        urlMapper(urlCollection);
+        console.log(urlCollection);
+        // urlMapper(urlCollection);
       })
       .catch(function (error) {
         console.error(error);

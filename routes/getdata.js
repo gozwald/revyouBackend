@@ -3,6 +3,8 @@ var router = express.Router();
 const puppeteer = require("puppeteer");
 const { predict } = require("../autoMLClient/client");
 
+process.setMaxListeners(0);
+
 router.post("/getdata", function (req, res, next) {
   const { url } = req.body;
 

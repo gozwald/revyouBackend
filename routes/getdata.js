@@ -72,6 +72,13 @@ router.post("/getdata", function (req, res, next) {
         good_feature: 0,
       },
     };
+    const snippetCollection = {
+      snippetCollection: {
+        faulty_device: [],
+        worked_as_intended: [],
+        good_feature: [],
+      },
+    };
 
     url.forEach((e, index) => {
       puppeteer
@@ -126,12 +133,15 @@ router.post("/getdata", function (req, res, next) {
               sentiment.forEach((review) => {
                 result.count[review.label]++;
                 finalTally.count[review.label]++;
+                snippetCollection.snippetCollection[review.label].push(
+                  review.snippet
+                );
               });
               if (result.reviews.length === productInfo.length) {
                 finalResult.push(result);
               }
               if (url.length === finalResult.length) {
-                res.json({ finalResult, finalTally });
+                res.json({ finalResult, finalTally, snippetCollection });
               }
 
               if (array.length === index) {

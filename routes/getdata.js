@@ -34,7 +34,10 @@ router.post("/getdata", function (req, res, next) {
       })
       .then(async (browser) => {
         const page = await browser.newPage();
-        await page.goto(newUrl);
+        await page.goto(newUrl, {
+          waitUntil: "load",
+          timeout: 0,
+        });
         await page.waitForSelector("body");
 
         const reviewPages = await page.evaluate(() => {

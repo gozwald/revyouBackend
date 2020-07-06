@@ -28,8 +28,11 @@ router.post("/getdata", function (req, res, next) {
         headless: true,
         args: [
           "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
           "--window-size=1920,1080",
           '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"',
+          "--single-process",
         ],
       })
       .then(async (browser) => {
@@ -88,8 +91,10 @@ router.post("/getdata", function (req, res, next) {
           args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
             "--window-size=1920,1080",
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"',
+            "--single-process",
           ],
         })
         .then(async (browser) => {

@@ -139,9 +139,10 @@ router.post("/getdata", function (req, res, next) {
               sentiment.forEach((review) => {
                 result.count[review.label]++;
                 finalTally.count[review.label]++;
-                snippetCollection.snippetCollection[review.label].push(
-                  review.snippet
-                );
+                snippetCollection.snippetCollection[review.label].push([
+                  review.snippet,
+                  item,
+                ]);
               });
               if (result.reviews.length === productInfo.length) {
                 finalResult.push(result);

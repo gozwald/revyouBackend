@@ -28,10 +28,28 @@ async function predict(content) {
   // console.log(response);
 
   let output = response.payload.map((e) => {
-    return {
-      label: e.displayName,
-      snippet: e.textExtraction.textSegment.content,
-    };
+    if (e.displayName === "faulty_device")
+      return {
+        label: e.displayName,
+        friendlylabel: "Faulty Device",
+        snippet: e.textExtraction.textSegment.content,
+        category: "negative",
+      };
+
+    if (e.displayName === "good_feature")
+      return {
+        label: e.displayName,
+        friendlylabel: "Good Feature",
+        snippet: e.textExtraction.textSegment.content,
+        category: "positive",
+      };
+    if (e.displayName === "worked_as_intended")
+      return {
+        label: e.displayName,
+        friendlylabel: "Worked as Intended",
+        snippet: e.textExtraction.textSegment.content,
+        category: "positive",
+      };
   });
 
   return output;

@@ -54,7 +54,7 @@ router.post("/getdata", function (req, res, next) {
         let reviews = reviewPages.split(" ");
         const reviewCount = parseFloat(reviews[3].replace(/,/g, ""));
         const urlCollection = [];
-        for (let i = 1; i < reviewCount / 10 && i < 6; i++) {
+        for (let i = 1; i < reviewCount / 10 && i < 11; i++) {
           urlCollection.push(
             `https://www.amazon.com/${slug[0]}/product-review/${asin[0]}/ref=cm_cr_getr_d_paging_btm_prev_${i}?pageNumber=${i}`
           );
@@ -74,6 +74,12 @@ router.post("/getdata", function (req, res, next) {
         faulty_device: 0,
         worked_as_intended: 0,
         good_feature: 0,
+        good_features: 0,
+        good_quality_performance: 0,
+        good_usability: 0,
+        lack_of_features: 0,
+        low_build_quality_performance: 0,
+        poor_usability: 0,
       },
     };
     const snippetCollection = {
@@ -81,6 +87,12 @@ router.post("/getdata", function (req, res, next) {
         faulty_device: [],
         worked_as_intended: [],
         good_feature: [],
+        good_features: [],
+        good_quality_performance: [],
+        good_usability: [],
+        lack_of_features: [],
+        low_build_quality_performance: [],
+        poor_usability: [],
       },
     };
 
@@ -131,6 +143,12 @@ router.post("/getdata", function (req, res, next) {
               faulty_device: 0,
               worked_as_intended: 0,
               good_feature: 0,
+              good_features: 0,
+              good_quality_performance: 0,
+              good_usability: 0,
+              lack_of_features: 0,
+              low_build_quality_performance: 0,
+              poor_usability: 0,
             },
           };
           productInfo.map((item, index, array) => {

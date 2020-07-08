@@ -1,6 +1,7 @@
 const projectId = "concise-smoke-280412";
 const location = "us-central1";
-const modelId = "TEN2837621807987556352";
+// const modelId = "TEN2837621807987556352";
+const modelId = "TEN4580761154384560128";
 
 const keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 

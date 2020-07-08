@@ -71,9 +71,6 @@ router.post("/getdata", function (req, res, next) {
     const finalResult = [];
     const finalTally = {
       count: {
-        faulty_device: 0,
-        worked_as_intended: 0,
-        good_feature: 0,
         good_features: 0,
         good_quality_performance: 0,
         good_usability: 0,
@@ -84,9 +81,6 @@ router.post("/getdata", function (req, res, next) {
     };
     const snippetCollection = {
       snippetCollection: {
-        faulty_device: [],
-        worked_as_intended: [],
-        good_feature: [],
         good_features: [],
         good_quality_performance: [],
         good_usability: [],
@@ -140,9 +134,6 @@ router.post("/getdata", function (req, res, next) {
             amazonUrl: e,
             reviews: [],
             count: {
-              faulty_device: 0,
-              worked_as_intended: 0,
-              good_feature: 0,
               good_features: 0,
               good_quality_performance: 0,
               good_usability: 0,

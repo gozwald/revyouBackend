@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node --optimize_for_size --max_old_space_size=128 --gc_interval=100 ./bin/www"
+    "start": "node --optimize_for_size --max_old_space_size=50 --gc_interval=100 ./bin/www"
   },
   "dependencies": {
     "@google-cloud/automl": "^2.1.0",

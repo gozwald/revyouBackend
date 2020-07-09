@@ -54,7 +54,7 @@ router.post("/getdata", function (req, res, next) {
         let reviews = reviewPages.split(" ");
         const reviewCount = parseFloat(reviews[3].replace(/,/g, ""));
         const urlCollection = [];
-        for (let i = 1; i < reviewCount / 10 && i < 11; i++) {
+        for (let i = 1; i < reviewCount / 10 && i < 5; i++) {
           urlCollection.push(
             `https://www.amazon.com/${slug[0]}/product-review/${asin[0]}/ref=cm_cr_getr_d_paging_btm_prev_${i}?pageNumber=${i}`
           );
@@ -90,8 +90,8 @@ router.post("/getdata", function (req, res, next) {
       },
     };
 
-    url.forEach((e, index) => {
-      puppeteer
+    url.forEach(async (e, index) => {
+      await puppeteer
         .launch({
           headless: true,
           args: [
@@ -143,27 +143,28 @@ router.post("/getdata", function (req, res, next) {
             },
           };
           productInfo.map((item, index, array) => {
-            predict(item).then((sentiment) => {
-              result.reviews.push({ review: item, sentiment });
-              sentiment.forEach((review) => {
-                result.count[review.label]++;
-                finalTally.count[review.label]++;
-                snippetCollection.snippetCollection[review.label].push([
-                  review.snippet,
-                  item,
-                ]);
-              });
-              if (result.reviews.length === productInfo.length) {
-                finalResult.push(result);
-              }
-              if (url.length === finalResult.length) {
-                res.json({ finalResult, finalTally, snippetCollection });
-              }
+            if (item.length < 10000)
+              predict(item).then((sentiment) => {
+                result.reviews.push({ review: item, sentiment });
+                sentiment.forEach((review) => {
+                  result.count[review.label]++;
+                  finalTally.count[review.label]++;
+                  snippetCollection.snippetCollection[review.label].push([
+                    review.snippet,
+                    item,
+                  ]);
+                });
+                if (result.reviews.length === productInfo.length) {
+                  finalResult.push(result);
+                }
+                if (url.length === finalResult.length) {
+                  res.json({ finalResult, finalTally, snippetCollection });
+                }
 
-              if (array.length === index) {
-                throw new Error("Blergh");
-              }
-            });
+                if (array.length === index) {
+                  throw new Error("Blergh");
+                }
+              });
           });
 
           await browser.close();

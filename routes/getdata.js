@@ -32,7 +32,6 @@ router.post("/getdata", function (req, res, next) {
           "--disable-dev-shm-usage",
           "--window-size=1920,1080",
           '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"',
-          "--single-process",
         ],
       })
       .then(async (browser) => {
@@ -91,93 +90,91 @@ router.post("/getdata", function (req, res, next) {
     };
 
     url.forEach((e, index) => {
-      setTimeout(() => {
-        puppeteer
-          .launch({
-            headless: true,
-            args: [
-              "--no-sandbox",
-              "--disable-setuid-sandbox",
-              "--disable-dev-shm-usage",
-              "--window-size=1920,1080",
-              '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"',
-              "--single-process",
-            ],
-          })
-          .then(async (browser) => {
-            const page = await browser.newPage();
-            await page.goto(e);
-            await page.waitForSelector("body");
+      puppeteer
+        .launch({
+          headless: true,
+          args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--window-size=1920,1080",
+            '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"',
+            "--single-process",
+          ],
+        })
+        .then(async (browser) => {
+          const page = await browser.newPage();
+          await page.goto(e);
+          await page.waitForSelector("body");
 
-            var productInfo = await page.evaluate(() => {
-              let data = [];
-              //   let datatitle = [];
-              let reviewbody = document.body.querySelectorAll(
-                "[data-hook='review-body']"
-              );
-              for (let element of reviewbody) {
-                data.push(element.textContent.trim());
-              }
-              //   let reviewtitle = document.body.querySelectorAll(
-              //     "[data-hook='review-title']"
-              //   );
-              //   for (let element of reviewtitle) {
-              //     datatitle.push(element.textContent.trim());
-              //   }
+          var productInfo = await page.evaluate(() => {
+            let data = [];
+            //   let datatitle = [];
+            let reviewbody = document.body.querySelectorAll(
+              "[data-hook='review-body']"
+            );
+            for (let element of reviewbody) {
+              data.push(element.textContent.trim());
+            }
+            //   let reviewtitle = document.body.querySelectorAll(
+            //     "[data-hook='review-title']"
+            //   );
+            //   for (let element of reviewtitle) {
+            //     datatitle.push(element.textContent.trim());
+            //   }
 
-              // const finalData = {
-              //   reviews: [data],
-              // };
+            // const finalData = {
+            //   reviews: [data],
+            // };
 
-              return data;
-            });
-            const result = {
-              amazonUrl: e,
-              reviews: [],
-              count: {
-                good_features: 0,
-                good_quality_performance: 0,
-                good_usability: 0,
-                lack_of_features: 0,
-                low_build_quality_performance: 0,
-                poor_usability: 0,
-              },
-            };
-            productInfo.map((item, index, array) => {
-              if (item.length < 10000)
-                predict(item).then((sentiment) => {
-                  result.reviews.push({ review: item, sentiment });
-                  sentiment.forEach((review) => {
-                    result.count[review.label]++;
-                    finalTally.count[review.label]++;
-                    snippetCollection.snippetCollection[review.label].push([
-                      review.snippet,
-                      item,
-                    ]);
-                  });
-                  if (result.reviews.length === productInfo.length) {
-                    finalResult.push(result);
-                  }
-                  if (url.length === finalResult.length) {
-                    res.json({ finalResult, finalTally, snippetCollection });
-                  }
-
-                  if (array.length === index) {
-                    throw new Error("Blergh");
-                  }
+            return data;
+          });
+          const result = {
+            amazonUrl: e,
+            reviews: [],
+            count: {
+              good_features: 0,
+              good_quality_performance: 0,
+              good_usability: 0,
+              lack_of_features: 0,
+              low_build_quality_performance: 0,
+              poor_usability: 0,
+            },
+          };
+          productInfo.map((item, index, array) => {
+            if (item.length < 10000)
+              predict(item).then((sentiment) => {
+                result.reviews.push({ review: item, sentiment });
+                sentiment.forEach((review) => {
+                  result.count[review.label]++;
+                  finalTally.count[review.label]++;
+                  snippetCollection.snippetCollection[review.label].push([
+                    review.snippet,
+                    item,
+                  ]);
                 });
-            });
+                if (result.reviews.length === productInfo.length) {
+                  finalResult.push(result);
+                }
+                if (url.length === finalResult.length) {
+                  res.json({ finalResult, finalTally, snippetCollection });
+                }
 
-            await browser.close();
-          })
-          .catch(function (error) {
-            console.error(error);
+                if (array.length === index) {
+                  throw new Error("Blergh");
+                }
+              });
           });
 
-        if (index === url.length) {
-          console.log(finalResult);
-        }
-      }, 500 * index);
+          await browser.close();
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
+
+      if (index === url.length) {
+        console.log(finalResult);
+      }
     });
   }
 });
